@@ -2,79 +2,114 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 /**
- * [Brief one-sentence description of what this class does.]
+ * Barebones trivia game. Just a timer and feedback label for now.
  *
  * @author Jayson Jauregui
  * @version 0.1.0
- * @since 3/11/26
+ * @since 04/24/26
  */
 public class Main extends Application {
 
-  // Window dimensions in pixels
-  private static final int SCENE_WIDTH = 400;
-  private static final int SCENE_HEIGHT = 300;
-  private static final String F_TO_C_LABEL = "Fahrenheit -> Celcius";
-  private static final String S1_PROMPT = "Enter F: ";
-  private static final String CONVERT = "Convert";
-private static final String ERROR_MSG = "Error";
-  // Text used for both the window title bar and the on-screen label
-  private static final String TITLE = "Hello There: ";
+  // window size
+  private static final int SCENE_WIDTH = 500;
+  private static final int SCENE_HEIGHT = 400;
 
-  /**
-   * Application entry point. JavaFX requires calling launch(), which
-   * internally creates the JavaFX runtime and calls start().
-   */
+  // how many seconds the player gets per question
+  private static final int TIME_LIMIT = 15;
+
+  // keeps track of how many seconds are left
+  private int timeLeft;
+
+  // the timer that ticks every second
+  private Timeline timer;
+
+  // label that shows the countdown on screen
+  private Label timerLabel;
+
+  // label that shows correct or incorrect
+  private Label feedbackLabel;
+
   public static void main(String[] args) {
     launch(args);
   }
 
-  /**
-   * Called by the JavaFX runtime after the application is initialized.
-   * Build your scene graph here and show the primary Stage (window).
-   *
-   * @param stage the primary window provided by the JavaFX runtime
-   */
   @Override
   public void start(Stage stage) {
 
-    Label s1Label = new Label(F_TO_C_LABEL);
-    TextField s1Input = new TextField();
-    s1Input.setPromptText(S1_PROMPT);
-    s1Input.setPrefWidth(200);
+    // TIMER LABEL
+    timerLabel = new Label();
+    timerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
-    Button s1Convert = new Button(CONVERT);
-    Label s1Result = new Label();
+    // FEEDBACK LABEL
+    // shows "Correct!" or "Incorrect!" after an answer
+    feedbackLabel = new Label();
+    feedbackLabel.setStyle("-fx-font-size: 18px;");
 
-    s1Convert.setOnAction(e ->{
-      String input = s1Input.getText();
-      try{
+    // LAYOUT
+    VBox root = new VBox(15, timerLabel, feedbackLabel);
+    root.setPadding(new Insets(30));
+    root.setAlignment(Pos.CENTER);
 
-        double value =  Double.parseDouble(input);
-        s1Result.setText(String.format("%.2f",TemperatureConverters.FtoC(value)));
-      } catch (NumberFormatException ex) {
-        s1Result.setText(ERROR_MSG + input);
-      }
-    });
+    // start the timer
+    startTimer();
 
-    VBox root1 = new VBox(12,s1Label, s1Input, s1Convert, s1Result);
-
-    root1.setPadding(new Insets(30));
-    root1.setAlignment(Pos.CENTER);
-
-
-    // Scene holds the layout and defines the window size
-    Scene scene = new Scene(root1, SCENE_WIDTH, SCENE_HEIGHT);
-
-    stage.setTitle(F_TO_C_LABEL); // text shown in the OS title bar
+    Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+    stage.setTitle("Trivia Game");
     stage.setScene(scene);
-    stage.show();                 // make the window visible
+    stage.show();
+  }
+
+  /**
+   * Starts a countdown timer that counts down from 15
+   * When it hits 0, it shows "Incorrect!" in the feedback label. (Can be something different for the case of running out)
+   */
+  public void startTimer() {
+    timeLeft = TIME_LIMIT;
+    timerLabel.setText("Time: " + timeLeft);
+
+    // stop the old timer if one is already running
+    if (timer != null) {
+      timer.stop();
+    }
+
+    timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+      timeLeft--;
+      timerLabel.setText("Time: " + timeLeft);
+
+      if (timeLeft <= 0) {
+        timer.stop();
+        showFeedback(false);
+      }
+    }));
+
+    // keeps looping until we call stop()
+    timer.setCycleCount(Timeline.INDEFINITE);
+    timer.play();
+  }
+
+  /**
+   * Stops the timer and shows correct or incorrect.
+   * Call this when the player picks an answer.
+   *
+   * @param correct true if they got it right, false if wrong or time ran out
+   */
+  public void showFeedback(boolean correct) {
+    timer.stop();
+
+    if (correct) {
+      feedbackLabel.setText("Correct!");
+      feedbackLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: green;");
+    } else {
+      feedbackLabel.setText("Incorrect!");
+      feedbackLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: red;");
+    }
   }
 }
