@@ -15,6 +15,15 @@ import javafx.stage.Stage;
  */
 
 public class CategorySelection {
+
+    public static boolean isValidCategory(String category) {
+        if (category == null) return false;
+
+        return category.equals("Science")
+                || category.equals("History")
+                || category.equals("Movies");
+    }
+
     public static Scene build(Stage stage) {
         Label title = new Label("Choose a Category");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
