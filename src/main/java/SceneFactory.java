@@ -18,6 +18,7 @@ public class SceneFactory {
             case MAIN -> buildMainScene(stage);
             case LOGIN -> buildLoginScene(stage);
             case REGISTER -> buildRegisterScene(stage);
+            case CATEGORY_SELECTION -> CategorySelection.build(stage);
         };
     }
 
@@ -44,5 +45,6 @@ public class SceneFactory {
     private static Scene buildRegisterScene(Stage stage) { /* TODO */
         return null;
     }
+
 
 }
