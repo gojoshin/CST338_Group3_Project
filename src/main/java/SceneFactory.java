@@ -1,8 +1,13 @@
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.geometry.Pos ;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * [Scene Factory Class]
@@ -15,36 +20,25 @@ import javafx.scene.layout.*;
 public class SceneFactory {
     public static Scene create(SceneType type, Stage stage) {
         return switch (type) {
-            case MAIN -> buildMainScene(stage);
-            case LOGIN -> buildLoginScene(stage);
-            case REGISTER -> buildRegisterScene(stage);
+            case LOGIN -> loadScene("/fxml/login.fxml");
+            case REGISTER -> loadScene("/fxml/register.fxml");
             case CATEGORY_SELECTION -> CategorySelection.build(stage);
             case GAME -> GameScene.build(stage);
         };
     }
 
-    private static Scene buildMainScene(Stage stage) {
-        Label title = new Label("Trivia Game");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-
-        Button loginBtn = new Button("Log In");
-        loginBtn.setOnAction(e -> stage.setScene(create(SceneType.LOGIN, stage)));
-
-        Button registerBtn = new Button("Register");
-        registerBtn.setOnAction(e -> stage.setScene(create(SceneType.REGISTER, stage)));
-
-        VBox layout = new VBox(15, title, loginBtn, registerBtn);
-        layout.setAlignment(Pos.CENTER);
-
-        return new Scene(layout, 600, 400);
-    }
-
-    private static Scene buildLoginScene(Stage stage) { /* TODO */
-        return null;
-    }
-
-    private static Scene buildRegisterScene(Stage stage) { /* TODO */
-        return null;
+    private static Scene loadScene(String fxmlPath){
+        URL url = SceneFactory.class.getResource(fxmlPath);
+        if(url == null){
+            throw new IllegalArgumentException("FXML not found: " + fxmlPath);
+        }
+        try{
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            return new Scene(root);
+        }catch (IOException e){
+            throw new RuntimeException("Failed to load FXML: " + fxmlPath, e);
+        }
     }
 
 }
