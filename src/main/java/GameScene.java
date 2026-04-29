@@ -75,8 +75,12 @@ public class GameScene {
         // button to go back to categories
         Button backBtn = new Button("Back to Categories");
 
+        // using an array so we can use countdown inside its own lambda
+        // (java wont let you use a regular variable before its done being made)
+        final Timeline[] countdownHolder = new Timeline[1];
+
         // this is the actual countdown timer that ticks every second
-        Timeline countdown = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+        countdownHolder[0] = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
 
             // subtract one second
             timer.tick();
@@ -87,8 +91,7 @@ public class GameScene {
             // check if time ran out
             if (timer.isTimeUp() == true) {
                 // stop the timer
-                Timeline self = (Timeline) ((KeyFrame) e.getSource()).getTimeline();
-                self.stop();
+                countdownHolder[0].stop();
 
                 // show that they ran out of time
                 feedbackLabel.setText("Time's up! The answer was: " + question.getCorrectAnswer());
@@ -102,8 +105,8 @@ public class GameScene {
         }));
 
         // keep it going until we stop it ourselves
-        countdown.setCycleCount(Timeline.INDEFINITE);
-        countdown.play();
+        countdownHolder[0].setCycleCount(Timeline.INDEFINITE);
+        countdownHolder[0].play();
 
         // set up what happens when you click each answer button
         for (int i = 0; i < allButtons.length; i++) {
@@ -112,7 +115,7 @@ public class GameScene {
 
             currentBtn.setOnAction(e -> {
                 // stop the timer
-                countdown.stop();
+                countdownHolder[0].stop();
 
                 // check if the answer is right
                 String picked = currentBtn.getText();
@@ -133,7 +136,7 @@ public class GameScene {
 
         // if they click back, stop the timer and go to categories
         backBtn.setOnAction(e -> {
-            countdown.stop();
+            countdownHolder[0].stop();
             stage.setScene(SceneFactory.create(SceneType.CATEGORY_SELECTION, stage));
         });
 
