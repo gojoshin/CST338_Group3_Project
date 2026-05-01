@@ -56,9 +56,11 @@ public class LoginController{
 
             // only to go to next scene till we work on database
             if (username.equals("user") && password.equals("123")) {
-                stage.setScene(SceneFactory.create(SceneType.CATEGORY_SELECTION, stage));
-            } else {
-                messageLabel.setText("Invalid login.");
+                stage.setScene(SceneFactory.create(SceneType.USER_DASHBOARD, stage));
+            } else if (username.equals("admin") && password.equals("456")){
+                stage.setScene(SceneFactory.create(SceneType.ADMIN_DASHBOARD, stage));
+            } else{
+                messageLabel.setText("Invalid username or password");
             }
 
 //             if the user is admin it will take to the admin dashboard or the user

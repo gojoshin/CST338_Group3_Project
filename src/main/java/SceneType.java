@@ -10,6 +10,8 @@
 public enum SceneType {
     LOGIN,
     REGISTER,
+    USER_DASHBOARD,
+    ADMIN_DASHBOARD,
     CATEGORY_SELECTION,
     GAME
 }
