@@ -20,25 +20,11 @@ import java.net.URL;
 public class SceneFactory {
     public static Scene create(SceneType type, Stage stage) {
         return switch (type) {
-            case LOGIN -> loadScene("/fxml/login.fxml");
-            case REGISTER -> loadScene("/fxml/register.fxml");
+            case LOGIN -> LoginController.build(stage);
+            case REGISTER -> RegisterController.build(stage);
             case CATEGORY_SELECTION -> CategorySelection.build(stage);
             case GAME -> GameScene.build(stage);
         };
-    }
-
-    private static Scene loadScene(String fxmlPath){
-        URL url = SceneFactory.class.getResource(fxmlPath);
-        if(url == null){
-            throw new IllegalArgumentException("FXML not found: " + fxmlPath);
-        }
-        try{
-            FXMLLoader loader = new FXMLLoader(url);
-            Parent root = loader.load();
-            return new Scene(root);
-        }catch (IOException e){
-            throw new RuntimeException("Failed to load FXML: " + fxmlPath, e);
-        }
     }
 
 }
