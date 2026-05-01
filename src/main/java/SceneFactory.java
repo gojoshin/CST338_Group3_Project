@@ -22,6 +22,8 @@ public class SceneFactory {
         return switch (type) {
             case LOGIN -> LoginController.build(stage);
             case REGISTER -> RegisterController.build(stage);
+            case USER_DASHBOARD -> userDashboard.build(stage);
+            case ADMIN_DASHBOARD -> adminDashboard.build(stage);
             case CATEGORY_SELECTION -> CategorySelection.build(stage);
             case GAME -> GameScene.build(stage);
         };
