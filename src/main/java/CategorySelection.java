@@ -5,15 +5,13 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-
 /**
  * [Category Selection Scene]
  *
  * @author Ruth Ramirez
- * @version 0.1.0
+ * @version 0.3.0
  * @since 04/26/2026
  */
-
 public class CategorySelection {
 
     public static boolean isValidCategory(String category) {
@@ -32,22 +30,33 @@ public class CategorySelection {
         Button historyBtn = new Button("History");
         Button moviesBtn = new Button("Movies");
 
-        VBox layout = new VBox(15, title, scienceBtn, historyBtn, moviesBtn);
+        Button backBtn = new Button("Back");
+        backBtn.setOnAction(e -> stage.setScene(SceneFactory.create(SceneType.MAIN, stage)));
+
+        VBox layout = new VBox(15, title, scienceBtn, historyBtn, moviesBtn, backBtn);
         layout.setAlignment(Pos.CENTER);
 
         scienceBtn.setOnAction(e -> {
-            System.out.println("Selected Science");
+            GameScene.selectedCategory = "Science";
+            GameScene.score = 0;
+            GameScene.currentIndex = 0;
+            stage.setScene(SceneFactory.create(SceneType.GAME, stage));
         });
 
         historyBtn.setOnAction(e -> {
-            System.out.println("Selected History");
+            GameScene.selectedCategory = "History";
+            GameScene.score = 0;
+            GameScene.currentIndex = 0;
+            stage.setScene(SceneFactory.create(SceneType.GAME, stage));
         });
 
         moviesBtn.setOnAction(e -> {
-            System.out.println("Selected Movies");
+            GameScene.selectedCategory = "Movies";
+            GameScene.score = 0;
+            GameScene.currentIndex = 0;
+            stage.setScene(SceneFactory.create(SceneType.GAME, stage));
         });
 
-        return new Scene(layout, 400, 400);
+        return new Scene(layout, 600, 400);
     }
-
 }
