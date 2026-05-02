@@ -31,7 +31,7 @@ public class CategorySelection {
         Button moviesBtn = new Button("Movies");
 
         Button backBtn = new Button("Back");
-        backBtn.setOnAction(e -> stage.setScene(SceneFactory.create(SceneType.MAIN, stage)));
+        backBtn.setOnAction(e -> stage.setScene(SceneFactory.create(SceneType.USER_DASHBOARD, stage)));
 
         VBox layout = new VBox(15, title, scienceBtn, historyBtn, moviesBtn, backBtn);
         layout.setAlignment(Pos.CENTER);
