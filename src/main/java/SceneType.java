@@ -13,5 +13,6 @@ public enum SceneType {
     USER_DASHBOARD,
     ADMIN_DASHBOARD,
     CATEGORY_SELECTION,
-    GAME
+    GAME,
+    LEADERBOARD
 }

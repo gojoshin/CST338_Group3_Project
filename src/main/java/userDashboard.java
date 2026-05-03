@@ -39,6 +39,17 @@ public class userDashboard {
 
 //        will take to the history scene TODO
 
+        Button leaderboardBtn = new Button("Leaderboard");
+        leaderboardBtn.setStyle("-fx-font-size: 14px;" +
+                "-fx-background-color: #5ba4fc;" +
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-radius: 8");
+
+        leaderboardBtn.setOnAction(e -> {
+            stage.setScene(SceneFactory.create(SceneType.LEADERBOARD, stage));
+        });
+
         Button logoutBtn = new Button("Log Out");
         logoutBtn.setStyle("-fx-font-size: 14px;"+
                 "-fx-background-color: #e33437;"+
@@ -49,11 +60,11 @@ public class userDashboard {
             stage.setScene(SceneFactory.create(SceneType.LOGIN, stage));
         });
 
-        VBox root = new VBox(15, title, startBtn, historyBtn, logoutBtn);
-
+        VBox root = new VBox(15, title, startBtn, historyBtn, leaderboardBtn, logoutBtn);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
 
         return new Scene(root, 400, 400);
     }
+
 }
