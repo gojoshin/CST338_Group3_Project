@@ -10,7 +10,7 @@ public class TriviaGame extends Application {
     public void start(Stage stage) {
         stage.setTitle("Trivia Game");
 
-        stage.setScene(SceneFactory.create(SceneType.LOGIN, stage));
+        stage.setScene(SceneFactory.create(SceneType.GAME, stage));
         stage.show();
     }
 

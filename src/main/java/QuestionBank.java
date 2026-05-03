@@ -93,6 +93,25 @@ public class QuestionBank {
                     "France"
             ));
 
+            list.add(new Questions(
+                    "What was the name of the ship that brought the pilgrims to America in 1620?",
+                    "The Titanic", "The Mayflower", "The Monitor", "Carnival Cruise",
+                    "The Mayflower"
+            ));
+
+            list.add(new Questions(
+                    "Which colony was the first to offer complete religious freedom?",
+                    "New York", "Rhode Island", "Virginia", "Massachusetts",
+                    "Rhode Island"
+
+            ));
+
+            list.add(new Questions(
+                    "Where was the Thirty Years War primarily fought?",
+                    "Spain", "North America", "Germany", "The Middle East",
+                    "Germany"
+            ));
+
         } else if (category.equals("Movies")) {
 
             list.add(new Questions(
@@ -125,6 +144,17 @@ public class QuestionBank {
                     "1995"
             ));
 
+            list.add(new Questions(
+                    "In Finding Nemo, what is the address where Nemo is held captive?",
+                    "42 Wallaby Way, Sydney", "123 P.Sherman Way, Sydney", "42 Wallaby Way, Melbourne", "456 Shebly Drive, Melbourne",
+                    "42 Wallaby Way, Sydney"
+            ));
+
+            list.add(new Questions(
+                    "Which film won the Academy Award for Best Picture in 2020, becoming the first non-english language film to do so?",
+                    "The Handmaiden", "Portrait of a Lady On Fire", "Das Boot", "Parasite",
+                    "Parasite"
+                    ));
         }
 
         return list;
