@@ -53,8 +53,14 @@ public class RegisterController {
                 "-fx-background-radius: 8");
 
         registerBtn.setOnAction(e -> {
+            String username = usernameField.getText().trim();
             String password = passwordField.getText();
             String confirm = confirmField.getText();
+
+            if (username.isEmpty() || password.isEmpty()) {
+                messageLabel.setText("Enter username and password.");
+                return;
+            }
 
 //          checks if both password and confirm password are same
             if (!password.equals(confirm)) {
@@ -62,7 +68,14 @@ public class RegisterController {
                 return;
             }
 //            another if we already have the username in the database
-            messageLabel.setText("Account created.");
+            if (DatabaseManager.getInstance().registerUser(username, password)) {
+                messageLabel.setText("Account created.");
+                usernameField.clear();
+                passwordField.clear();
+                confirmField.clear();
+            } else {
+                messageLabel.setText("Username already exists.");
+            }
         });
 
 //       back buttons takes back to the login page
