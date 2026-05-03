@@ -24,13 +24,33 @@ public class CategorySelection {
 
     public static Scene build(Stage stage) {
         Label title = new Label("Choose a Category");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
         Button scienceBtn = new Button("Science");
+        scienceBtn.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #ff7f50;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
         Button historyBtn = new Button("History");
+        historyBtn.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #db7093;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
         Button moviesBtn = new Button("Movies");
+        moviesBtn.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #9acd32;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
 
         Button backBtn = new Button("Back");
+        backBtn.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #5ba4fc;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
+
         backBtn.setOnAction(e -> stage.setScene(SceneFactory.create(SceneType.USER_DASHBOARD, stage)));
 
         VBox layout = new VBox(15, title, scienceBtn, historyBtn, moviesBtn, backBtn);

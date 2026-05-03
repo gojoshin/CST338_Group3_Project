@@ -39,12 +39,11 @@ public class GameScene {
         // if we went through all the questions, show the score
         if (currentIndex >= questionList.size()) {
             Label doneLabel = new Label("Game Over!");
-            doneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
             Label scoreLabel = new Label("You got " + score + " out of " + questionList.size() + " correct!");
-            scoreLabel.setStyle("-fx-font-size: 18px;");
 
             Button backBtn = new Button("Back to Categories");
+
             backBtn.setOnAction(e -> {
                 // reset for next game
                 score = 0;
@@ -67,7 +66,6 @@ public class GameScene {
 
         // label that shows the timer counting down
         Label timerLabel = new Label("Time: " + timer.getTimeLeft());
-        timerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
         // label that shows which question number we are on
         Label questionNumLabel = new Label("Question " + (currentIndex + 1) + " of " + questionList.size());
@@ -75,22 +73,40 @@ public class GameScene {
 
         // label that shows the question
         Label questionLabel = new Label(question.getQuestion());
-        questionLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
         questionLabel.setWrapText(true);
 
         // label that shows correct or wrong feedback after you pick an answer
         Label feedbackLabel = new Label();
-        feedbackLabel.setStyle("-fx-font-size: 16px;");
 
         // label that shows the score
         Label scoreLabel = new Label("Score: " + score);
-        scoreLabel.setStyle("-fx-font-size: 14px;");
 
         // the 4 answer buttons
         Button btnA = new Button(question.getChoiceA());
+        btnA.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #5ba4fc;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
+
         Button btnB = new Button(question.getChoiceB());
+        btnB.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #5ba4fc;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
         Button btnC = new Button(question.getChoiceC());
+        btnC.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #5ba4fc;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
         Button btnD = new Button(question.getChoiceD());
+        btnD.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #5ba4fc;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
 
         // Width all at the same size.
         btnA.setPrefWidth(200);
@@ -111,6 +127,11 @@ public class GameScene {
 
         // button to go back to categories
         Button backBtn = new Button("Back to Categories");
+        backBtn.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #5ba4fc;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
 
         // using an array so we can use countdown inside its own lambda
         final Timeline[] countdownHolder = new Timeline[1];
@@ -131,7 +152,7 @@ public class GameScene {
 
                 // show that they ran out of time
                 feedbackLabel.setText("Time's up! The answer was: " + question.getCorrectAnswer());
-                feedbackLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: red;");
+                feedbackLabel.setStyle("-fx-font-size: 16px;" + " -fx-text-fill: red;" + "-fx-font-weight: bold");
 
                 // turn off the buttons so they cant click anymore
                 for (int i = 0; i < allButtons.length; i++) {
@@ -165,10 +186,10 @@ public class GameScene {
                 if (question.isCorrect(picked) == true) {
                     score++;
                     feedbackLabel.setText("Correct!");
-                    feedbackLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: green;");
+                    feedbackLabel.setStyle("-fx-font-size: 16px;" + " -fx-text-fill: green;" +  "-fx-font-weight: bold");
                 } else {
                     feedbackLabel.setText("Wrong! The answer was: " + question.getCorrectAnswer());
-                    feedbackLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: red;");
+                    feedbackLabel.setStyle("-fx-font-size: 16px;" + " -fx-text-fill: red;" + "-fx-font-weight: bold");
                 }
 
                 // update score label

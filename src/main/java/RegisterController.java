@@ -16,12 +16,9 @@ public class RegisterController {
     public static Scene build(Stage stage) {
 
         Label title = new Label("Register");
-        title.setStyle("-fx-font-size: 26px;" +
-                "-fx-font-weight: bold;");
 
 //      username
         Label userLabel = new Label("Username:");
-        userLabel.setStyle("-fx-font-size: 16px;");
 
         TextField usernameField = new TextField();
         usernameField.setPromptText("eg. otter 123");
@@ -29,14 +26,12 @@ public class RegisterController {
 
 //      password
         Label passwordLabel = new Label("Password:");
-        passwordLabel.setStyle("-fx-font-size: 16px;");
 
         PasswordField passwordField = new PasswordField();
         passwordField.setMaxWidth(200);
 
 //      Confirm password label
         Label confirmLabel = new Label("Confirm Password:");
-        confirmLabel.setStyle("-fx-font-size: 16px;");
 
         PasswordField confirmField = new PasswordField();
         confirmField.setMaxWidth(200);

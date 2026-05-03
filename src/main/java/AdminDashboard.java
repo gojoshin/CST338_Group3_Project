@@ -13,7 +13,7 @@ import javafx.stage.Stage;
  * @since 04/26/2026
  */
 
-public class adminDashboard {
+public class AdminDashboard {
     public static Scene build(Stage stage) {
         Label title = new Label("Welcome Admin!");
         title.setStyle("-fx-font-size: 26px;" +

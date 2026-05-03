@@ -16,19 +16,15 @@ public class LoginController{
     public static Scene build(Stage stage) {
 
         Label title = new Label("Trivia Game Login");
-        title.setStyle("-fx-font-size: 26px;" +
-                "-fx-font-weight: bold;");
 
 //      Username
         Label userLabel = new Label("Username: ");
-        userLabel.setStyle("-fx-font-size: 16px;");
 
         TextField usernameField = new TextField();
         usernameField.setMaxWidth(200);
 
 //        Password
         Label passwordLabel = new Label("Password: ");
-        passwordLabel.setStyle("-fx-font-size: 16px;");
 
         PasswordField passwordField = new PasswordField();
         passwordField.setMaxWidth(200);
@@ -76,8 +72,29 @@ public class LoginController{
             stage.setScene(SceneFactory.create(SceneType.REGISTER, stage));
         });
 
+        // dark mode toggle
+        Button toggleBtn = new Button("Switch to Dark Mode");
+        toggleBtn.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #5ba4fc;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
+
+        toggleBtn.setOnAction(e -> {
+            TriviaGame.darkMode = !TriviaGame.darkMode;
+
+            if (TriviaGame.darkMode) {
+                TriviaGame.applyDarkMode(stage.getScene());
+                toggleBtn.setText("Switch to Light Mode");
+
+            } else {
+                TriviaGame.applyLightMode(stage.getScene());
+                toggleBtn.setText("Switch to Dark Mode");
+            }
+        });
+
         VBox root = new VBox(15, title,userLabel, usernameField, passwordLabel,
-                passwordField, messageLabel, loginBtn, registerBtn
+                passwordField, messageLabel, loginBtn, registerBtn, toggleBtn
         );
 
         root.setAlignment(Pos.CENTER);
@@ -85,4 +102,6 @@ public class LoginController{
 
         return new Scene(root, 400, 400);
     }
+
+
 }
