@@ -12,6 +12,8 @@ import javafx.stage.Stage;
  * @since 04/26/2026
  */
 public class LoginController{
+    private static final String ADMIN_USERNAME = "admin";
+    private static final String ADMIN_PASSWORD = "123";
 
     public static Scene build(Stage stage) {
 
@@ -46,7 +48,7 @@ public class LoginController{
         );
 
         loginBtn.setOnAction(e -> {
-            String username = usernameField.getText();
+            String username = usernameField.getText().trim();
             String password = passwordField.getText();
 
             if (username.isEmpty() || password.isEmpty()) {
@@ -54,13 +56,12 @@ public class LoginController{
                 return;
             }
 
-            // only to go to next scene till we work on database
-            if (username.equals("user") && password.equals("123")) {
-                stage.setScene(SceneFactory.create(SceneType.USER_DASHBOARD, stage));
-            } else if (username.equals("admin") && password.equals("456")){
+            if (isAdminLogin(username, password)) {
                 stage.setScene(SceneFactory.create(SceneType.ADMIN_DASHBOARD, stage));
-            } else{
-                messageLabel.setText("Invalid username or password");
+            } else if (DatabaseManager.getInstance().validateLogin(username, password)) {
+                stage.setScene(SceneFactory.create(SceneType.USER_DASHBOARD, stage));
+            } else {
+                messageLabel.setText("Invalid login.");
             }
 
 //             if the user is admin it will take to the admin dashboard or the user
@@ -77,12 +78,17 @@ public class LoginController{
         });
 
         VBox root = new VBox(15, title,userLabel, usernameField, passwordLabel,
-                passwordField, messageLabel, loginBtn, registerBtn
+                passwordField, messageLabel, loginBtn, registerBtn,
+                ThemeManager.createDarkModeToggle(stage, SceneType.LOGIN)
         );
 
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
 
-        return new Scene(root, 400, 400);
+        return new Scene(root, 400, 430);
+    }
+
+    private static boolean isAdminLogin(String username, String password) {
+        return ADMIN_USERNAME.equals(username) && ADMIN_PASSWORD.equals(password);
     }
 }

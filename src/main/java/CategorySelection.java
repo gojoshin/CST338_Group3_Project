@@ -33,7 +33,8 @@ public class CategorySelection {
         Button backBtn = new Button("Back");
         backBtn.setOnAction(e -> stage.setScene(SceneFactory.create(SceneType.USER_DASHBOARD, stage)));
 
-        VBox layout = new VBox(15, title, scienceBtn, historyBtn, moviesBtn, backBtn);
+        VBox layout = new VBox(15, title, scienceBtn, historyBtn, moviesBtn, backBtn,
+                ThemeManager.createDarkModeToggle(stage, SceneType.CATEGORY_SELECTION));
         layout.setAlignment(Pos.CENTER);
 
         scienceBtn.setOnAction(e -> {
@@ -57,6 +58,6 @@ public class CategorySelection {
             stage.setScene(SceneFactory.create(SceneType.GAME, stage));
         });
 
-        return new Scene(layout, 600, 400);
+        return new Scene(layout, 600, 430);
     }
 }

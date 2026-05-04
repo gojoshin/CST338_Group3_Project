@@ -1,3 +1,11 @@
+/**
+ * DatabaseManager.java
+ * This class manages the database connection and operations for the trivia application
+ *
+ * @author Joshua Shin
+ * @version 1.0
+ * @since 04/24/2026
+ */
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,15 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseManager {
-    private static final String DB_URL =
-            System.getProperty("app.db.url", "jdbc:sqlite:trivia.db");
+    private static final String DEFAULT_DB_URL = "jdbc:sqlite:app.db";
+    private static final String DEFAULT_USER_ROLE = "user";
 
     private static DatabaseManager instance;
     private Connection connection;
 
     private DatabaseManager() {
         try {
-            connection = DriverManager.getConnection(DB_URL);
+            connection = DriverManager.getConnection(getDatabaseUrl());
             createTables();
         } catch (SQLException e) {
             throw new RuntimeException("Database connection failed", e);
@@ -86,6 +94,115 @@ public class DatabaseManager {
                  
             """);
         }
+    }
+
+    private static String getDatabaseUrl() {
+        return System.getProperty("app.db.url", DEFAULT_DB_URL);
+    }
+
+    public boolean registerUser(String username, String password) {
+        String cleanedUsername = cleanUsername(username);
+
+        if (cleanedUsername.isEmpty() || password == null || password.isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+                INSERT INTO users (username, password, role)
+                VALUES (?, ?, ?)
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, cleanedUsername);
+            ps.setString(2, password);
+            ps.setString(3, DEFAULT_USER_ROLE);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            if (isUniqueUsernameError(e)) {
+                return false;
+            }
+            throw new RuntimeException("User registration failed", e);
+        }
+    }
+
+    public boolean validateLogin(String username, String password) {
+        String cleanedUsername = cleanUsername(username);
+
+        if (cleanedUsername.isEmpty() || password == null || password.isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+                SELECT 1
+                FROM users
+                WHERE username = ? AND password = ?
+                LIMIT 1
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, cleanedUsername);
+            ps.setString(2, password);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Login validation failed", e);
+        }
+    }
+
+    public List<UserAccount> getRegisteredUsers() {
+        List<UserAccount> users = new ArrayList<>();
+        String sql = """
+                SELECT username, password
+                FROM users
+                WHERE role = ?
+                ORDER BY user_id
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, DEFAULT_USER_ROLE);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    users.add(new UserAccount(
+                            rs.getString("username"),
+                            rs.getString("password")
+                    ));
+                }
+            }
+            return users;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load registered users", e);
+        }
+    }
+
+    public static class UserAccount {
+        private final String username;
+        private final String password;
+
+        public UserAccount(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+    }
+
+    private static String cleanUsername(String username) {
+        return username == null ? "" : username.trim();
+    }
+
+    private static boolean isUniqueUsernameError(SQLException e) {
+        String message = e.getMessage();
+        return message != null && message.toLowerCase().contains("unique");
     }
 
     public void close() {
