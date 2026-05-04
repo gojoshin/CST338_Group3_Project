@@ -88,12 +88,13 @@ public class adminDashboard {
         });
 
         VBox root = new VBox(15, title, usersTitle, userTable, refreshUsersBtn,
-                leaderboardBtn, historyBtn, manageQueBtn, logoutBtn);
+                leaderboardBtn, historyBtn, manageQueBtn, logoutBtn,
+                ThemeManager.createDarkModeToggle(stage, SceneType.ADMIN_DASHBOARD));
 
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
 
-        return new Scene(root, 400, 400);
+        return new Scene(root, 500, 560);
     }
 
     private static void loadUsers(TableView<DatabaseManager.UserAccount> userTable) {

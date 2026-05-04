@@ -158,7 +158,7 @@ public class DatabaseManager {
                 SELECT username, password
                 FROM users
                 WHERE role = ?
-                ORDER BY username
+                ORDER BY user_id
                 """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

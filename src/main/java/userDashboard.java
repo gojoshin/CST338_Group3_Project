@@ -49,7 +49,8 @@ public class userDashboard {
             stage.setScene(SceneFactory.create(SceneType.LOGIN, stage));
         });
 
-        VBox root = new VBox(15, title, startBtn, historyBtn, logoutBtn);
+        VBox root = new VBox(15, title, startBtn, historyBtn, logoutBtn,
+                ThemeManager.createDarkModeToggle(stage, SceneType.USER_DASHBOARD));
 
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));

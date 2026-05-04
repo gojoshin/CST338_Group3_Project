@@ -1,0 +1,118 @@
+.light-theme {
+    -app-background: #f7f9fc;
+    -app-surface: #ffffff;
+    -app-text: #1f2937;
+    -app-muted: #6b7280;
+    -app-border: #cbd5e1;
+    -app-primary: #2563eb;
+    -app-primary-hover: #1d4ed8;
+    -app-danger: #dc2626;
+    -app-danger-hover: #b91c1c;
+    -app-table-header: #e5e7eb;
+    -app-table-row: #ffffff;
+    -app-table-row-alt: #f1f5f9;
+}
+
+.dark-theme {
+    -app-background: #151922;
+    -app-surface: #232a36;
+    -app-text: #f3f4f6;
+    -app-muted: #aab3c2;
+    -app-border: #3f4a5c;
+    -app-primary: #4f8df7;
+    -app-primary-hover: #6ea4ff;
+    -app-danger: #ef4444;
+    -app-danger-hover: #f87171;
+    -app-table-header: #2d3543;
+    -app-table-row: #202632;
+    -app-table-row-alt: #252d3a;
+}
+
+.root {
+    -fx-background-color: -app-background;
+    -fx-text-fill: -app-text;
+    -fx-font-family: "Arial";
+}
+
+.label,
+.check-box {
+    -fx-text-fill: -app-text;
+}
+
+.theme-toggle {
+    -fx-font-size: 13px;
+}
+
+.check-box .box {
+    -fx-background-color: -app-surface;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 4;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: -app-text;
+}
+
+.text-input {
+    -fx-background-color: -app-surface;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: -app-text;
+    -fx-prompt-text-fill: -app-muted;
+}
+
+.button {
+    -fx-font-size: 14px;
+    -fx-background-color: -app-primary;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: -app-primary-hover;
+}
+
+.button:disabled {
+    -fx-opacity: 0.65;
+}
+
+.table-view {
+    -fx-background-color: -app-surface;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-control-inner-background: -app-surface;
+    -fx-table-cell-border-color: -app-border;
+}
+
+.table-view .column-header-background,
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: -app-table-header;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -app-text;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell {
+    -fx-background-color: -app-table-row;
+    -fx-text-background-color: -app-text;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: -app-table-row-alt;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: -app-primary;
+    -fx-text-background-color: white;
+}
+
+.table-cell {
+    -fx-text-fill: -app-text;
+}
