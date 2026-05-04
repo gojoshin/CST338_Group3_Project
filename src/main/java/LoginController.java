@@ -78,13 +78,14 @@ public class LoginController{
         });
 
         VBox root = new VBox(15, title,userLabel, usernameField, passwordLabel,
-                passwordField, messageLabel, loginBtn, registerBtn
+                passwordField, messageLabel, loginBtn, registerBtn,
+                ThemeManager.createDarkModeToggle(stage, SceneType.LOGIN)
         );
 
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
 
-        return new Scene(root, 400, 400);
+        return new Scene(root, 400, 430);
     }
 
     private static boolean isAdminLogin(String username, String password) {

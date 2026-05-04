@@ -19,7 +19,7 @@ import java.net.URL;
 
 public class SceneFactory {
     public static Scene create(SceneType type, Stage stage) {
-        return switch (type) {
+        Scene scene = switch (type) {
             case LOGIN -> LoginController.build(stage);
             case REGISTER -> RegisterController.build(stage);
             case USER_DASHBOARD -> userDashboard.build(stage);
@@ -27,6 +27,9 @@ public class SceneFactory {
             case CATEGORY_SELECTION -> CategorySelection.build(stage);
             case GAME -> GameScene.build(stage);
         };
+
+        ThemeManager.applyTheme(scene);
+        return scene;
     }
 
 }
