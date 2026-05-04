@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,5 +49,19 @@ class DatabaseManagerTest {
     void registerUserRejectsDuplicateUsername() {
         assertTrue(manager.registerUser("duplicateUser", "firstPassword"));
         assertFalse(manager.registerUser("duplicateUser", "secondPassword"));
+    }
+
+    @Test
+    void getRegisteredUsersReturnsSavedUsernamesAndPasswords() {
+        assertTrue(manager.registerUser("cooper", "bt7274"));
+        assertTrue(manager.registerUser("bt", "titan"));
+
+        List<DatabaseManager.UserAccount> users = manager.getRegisteredUsers();
+
+        assertEquals(2, users.size());
+        assertEquals("cooper", users.get(0).getUsername());
+        assertEquals("bt7274", users.get(0).getPassword());
+        assertEquals("bt", users.get(1).getUsername());
+        assertEquals("titan", users.get(1).getPassword());
     }
 }
