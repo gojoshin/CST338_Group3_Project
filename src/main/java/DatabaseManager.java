@@ -12,6 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseManager {
     private static final String DEFAULT_DB_URL = "jdbc:sqlite:app.db";
@@ -147,6 +149,50 @@ public class DatabaseManager {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Login validation failed", e);
+        }
+    }
+
+    public List<UserAccount> getRegisteredUsers() {
+        List<UserAccount> users = new ArrayList<>();
+        String sql = """
+                SELECT username, password
+                FROM users
+                WHERE role = ?
+                ORDER BY username
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, DEFAULT_USER_ROLE);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    users.add(new UserAccount(
+                            rs.getString("username"),
+                            rs.getString("password")
+                    ));
+                }
+            }
+            return users;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load registered users", e);
+        }
+    }
+
+    public static class UserAccount {
+        private final String username;
+        private final String password;
+
+        public UserAccount(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
         }
     }
 
