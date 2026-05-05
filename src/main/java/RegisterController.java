@@ -24,7 +24,6 @@ public class RegisterController {
         userLabel.setStyle("-fx-font-size: 16px;");
 
         TextField usernameField = new TextField();
-        usernameField.setPromptText("eg. otter 123");
         usernameField.setMaxWidth(200);
 
 //      password

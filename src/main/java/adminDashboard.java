@@ -4,9 +4,12 @@ import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -42,6 +45,67 @@ public class adminDashboard {
         userTable.getColumns().add(usernameColumn);
         userTable.getColumns().add(passwordColumn);
         loadUsers(userTable);
+
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Username");
+        usernameField.setMaxWidth(150);
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+        passwordField.setMaxWidth(150);
+
+        Label messageLabel = new Label();
+        messageLabel.setStyle("-fx-font-size: 13px;");
+
+        Button addUserBtn = new Button("Add User");
+        addUserBtn.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #2c9f45;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
+        addUserBtn.setOnAction(e -> {
+            boolean wasAdded = DatabaseManager.getInstance().registerUser(
+                    usernameField.getText(),
+                    passwordField.getText()
+            );
+
+            if (wasAdded) {
+                messageLabel.setText("User added.");
+                usernameField.clear();
+                passwordField.clear();
+                loadUsers(userTable);
+            } else {
+                messageLabel.setText("Enter a unique username and password.");
+            }
+        });
+
+        Button deleteUserBtn = new Button("Delete Selected");
+        deleteUserBtn.setStyle("-fx-font-size: 14px;"+
+                "-fx-background-color: #e33437;"+
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white ;" +
+                "-fx-background-radius: 8");
+        deleteUserBtn.setOnAction(e -> {
+            DatabaseManager.UserAccount selectedUser = userTable.getSelectionModel().getSelectedItem();
+
+            if (selectedUser == null) {
+                messageLabel.setText("Select a user to delete.");
+                return;
+            }
+
+            if (DatabaseManager.getInstance().deleteUser(selectedUser.getUsername())) {
+                messageLabel.setText("User deleted.");
+                loadUsers(userTable);
+            } else {
+                messageLabel.setText("Could not delete selected user.");
+            }
+        });
+
+        HBox addUserRow = new HBox(10, usernameField, passwordField, addUserBtn);
+        addUserRow.setAlignment(Pos.CENTER);
+
+        HBox userActionsRow = new HBox(10, deleteUserBtn);
+        userActionsRow.setAlignment(Pos.CENTER);
 
         Button refreshUsersBtn = new Button("Refresh Users");
         refreshUsersBtn.setStyle("-fx-font-size: 14px;"+
@@ -87,14 +151,15 @@ public class adminDashboard {
             stage.setScene(SceneFactory.create(SceneType.LOGIN, stage));
         });
 
-        VBox root = new VBox(15, title, usersTitle, userTable, refreshUsersBtn,
+        VBox root = new VBox(15, title, usersTitle, userTable, addUserRow, userActionsRow,
+                messageLabel, refreshUsersBtn,
                 leaderboardBtn, historyBtn, manageQueBtn, logoutBtn,
                 ThemeManager.createDarkModeToggle(stage, SceneType.ADMIN_DASHBOARD));
 
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
 
-        return new Scene(root, 500, 560);
+        return new Scene(root, 560, 650);
     }
 
     private static void loadUsers(TableView<DatabaseManager.UserAccount> userTable) {
