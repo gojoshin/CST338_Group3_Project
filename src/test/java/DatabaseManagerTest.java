@@ -52,6 +52,24 @@ class DatabaseManagerTest {
     }
 
     @Test
+    void deleteUserRemovesUserFromLoginAndRegisteredUsers() {
+        assertTrue(manager.registerUser("deleteMe", "password123"));
+        assertTrue(manager.validateLogin("deleteMe", "password123"));
+
+        assertTrue(manager.deleteUser("deleteMe"));
+
+        assertFalse(manager.validateLogin("deleteMe", "password123"));
+        assertTrue(manager.getRegisteredUsers().isEmpty());
+    }
+
+    @Test
+    void deleteUserReturnsFalseForMissingUser() {
+        assertFalse(manager.deleteUser("missingUser"));
+        assertFalse(manager.deleteUser(""));
+        assertFalse(manager.deleteUser(null));
+    }
+
+    @Test
     void getRegisteredUsersReturnsSavedUsernamesAndPasswords() {
         assertTrue(manager.registerUser("cooper", "bt7274"));
         assertTrue(manager.registerUser("bt", "titan"));

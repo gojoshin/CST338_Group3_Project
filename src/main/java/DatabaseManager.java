@@ -127,6 +127,27 @@ public class DatabaseManager {
         }
     }
 
+    public boolean deleteUser(String username) {
+        String cleanedUsername = cleanUsername(username);
+
+        if (cleanedUsername.isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+                DELETE FROM users
+                WHERE username = ? AND role = ?
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, cleanedUsername);
+            ps.setString(2, DEFAULT_USER_ROLE);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("User deletion failed", e);
+        }
+    }
+
     public boolean validateLogin(String username, String password) {
         String cleanedUsername = cleanUsername(username);
 
