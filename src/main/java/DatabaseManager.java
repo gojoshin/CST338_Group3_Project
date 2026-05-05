@@ -20,7 +20,7 @@ public class DatabaseManager {
     private static final String DEFAULT_USER_ROLE = "user";
 
     private static DatabaseManager instance;
-    private Connection connection;
+    private final Connection connection;
 
     private DatabaseManager() {
         try {
@@ -203,6 +203,201 @@ public class DatabaseManager {
     private static boolean isUniqueUsernameError(SQLException e) {
         String message = e.getMessage();
         return message != null && message.toLowerCase().contains("unique");
+    }
+
+    public boolean addCategory(String name, String description) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+                INSERT INTO categories (name, description)
+                VALUES (?, ?)
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setString(2, description);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException(" Failed", e);
+        }
+    }
+
+
+    public List<String> getCategoryNames() {
+        List<String> categories = new ArrayList<>();
+
+        String sql = "SELECT name FROM categories ORDER BY name";
+
+        try (Statement s = connection.createStatement();
+             ResultSet rs = s.executeQuery(sql)) {
+
+            while (rs.next()) {
+                categories.add(rs.getString("name"));
+            }
+
+            return categories;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load categories", e);
+        }
+    }
+
+    private int getCategoryIdByName(String categoryName) {
+        String sql = "SELECT category_id FROM categories WHERE name = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, categoryName);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("category_id");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not find category", e);
+        }
+
+        return -1;
+    }
+
+    public boolean addQuestion(String categoryName, String questionText,
+                               String optionA, String optionB,
+                               String optionC, String optionD,
+                               String correctAnswer) {
+
+        int categoryId = getCategoryIdByName(categoryName);
+
+        if (categoryId == -1) {
+            return false;
+        }
+
+        if (questionText == null || questionText.isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+            INSERT INTO questions
+            (category_id, question_text, option_a, option_b, option_c, option_d, correct_answer)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ps.setString(2, questionText);
+            ps.setString(3, optionA);
+            ps.setString(4, optionB);
+            ps.setString(5, optionC);
+            ps.setString(6, optionD);
+            ps.setString(7, correctAnswer);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not add question", e);
+        }
+    }
+
+    public List<String> getQuestionsWithCategory() {
+        List<String> questions = new ArrayList<>();
+
+        String sql = """ 
+            SELECT q.question_id, c.name, q.question_text
+            FROM questions q
+            JOIN categories c ON q.category_id = c.category_id
+            ORDER BY q.question_id DESC
+            """;
+
+        try (Statement s = connection.createStatement();
+             ResultSet rs = s.executeQuery(sql)) {
+
+            while (rs.next()) {
+                questions.add(
+                        rs.getInt("question_id") + " | " +
+                                rs.getString("name") + " | " +
+                                rs.getString("question_text")
+                );
+            }
+
+            return questions;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load questions", e);
+        }
+    }
+
+    public boolean deleteQuestionById(int questionId) {
+        String sql = "DELETE FROM questions WHERE question_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, questionId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not delete question", e);
+        }
+    }
+
+    public List<Questions> getQuestionsByCategory(String categoryName) {
+        List<Questions> questions = new ArrayList<>();
+
+        String sql = """
+            SELECT q.question_text, q.option_a, q.option_b, q.option_c, q.option_d, q.correct_answer
+            FROM questions q
+            JOIN categories c ON q.category_id = c.category_id
+            WHERE c.name = ?
+            ORDER BY q.question_id
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, categoryName);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    questions.add(new Questions(
+                            rs.getString("question_text"),
+                            rs.getString("option_a"),
+                            rs.getString("option_b"),
+                            rs.getString("option_c"),
+                            rs.getString("option_d"),
+                            rs.getString("correct_answer")
+                    ));
+                }
+            }
+            return questions;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load questions by category", e);
+        }
+    }
+
+    public void saveQuizAttempt(int userId, String categoryName, int score, int totalQuestions) {
+
+        String getCategorySql = "SELECT category_id FROM categories WHERE name = ?";
+        String insertSql = """
+            INSERT INTO quiz_attempts (user_id, category_id, score, total_questions)
+            VALUES (?, ?, ?, ?)
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(getCategorySql)) {
+
+            ps.setString(1, categoryName);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    int categoryId = rs.getInt("category_id");
+
+                    try (PreparedStatement ps2 = connection.prepareStatement(insertSql)) {
+                        ps2.setInt(1, userId);
+                        ps2.setInt(2, categoryId);
+                        ps2.setInt(3, score);
+                        ps2.setInt(4, totalQuestions);
+                        ps2.executeUpdate();
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to save quiz attempt", e);
+        }
     }
 
     public void close() {

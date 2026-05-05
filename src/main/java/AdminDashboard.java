@@ -17,7 +17,7 @@ import javafx.stage.Stage;
  * @since 04/26/2026
  */
 
-public class adminDashboard {
+public class AdminDashboard {
     public static Scene build(Stage stage) {
         Label title = new Label("Welcome Admin!");
         title.setStyle("-fx-font-size: 26px;" +
@@ -75,7 +75,10 @@ public class adminDashboard {
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: white ;" +
                 "-fx-background-radius: 8");
-//        TODO manage quiz scene where admin can edit quiz
+        manageQueBtn.setOnAction(e -> {
+            stage.setScene(SceneFactory.create(SceneType.MANAGE_QUIZ, stage));
+        });
+
 
         Button logoutBtn = new Button("Log Out");
         logoutBtn.setStyle("-fx-font-size: 14px;"+

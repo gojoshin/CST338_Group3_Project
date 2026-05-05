@@ -64,4 +64,31 @@ class DatabaseManagerTest {
         assertEquals("bt", users.get(1).getUsername());
         assertEquals("titan", users.get(1).getPassword());
     }
+
+    @Test
+    void addCategorySavesCategoryName() {
+        assertTrue(manager.addCategory("Science", "Science questions"));
+
+        List<String> categories = manager.getCategoryNames();
+
+        assertTrue(categories.contains("Science"));
+    }
+
+    @Test
+    void addQuestionStoresQuestionCorrectly() {
+        manager.addCategory("Science", "Science questions");
+
+        assertTrue(manager.addQuestion(
+                "Science",
+                "What part of the plant conducts photosynthesis?",
+                "Root", "Stem", "Leaf", "Flower",
+                "Leaf"
+        ));
+
+        List<Questions> questions = manager.getQuestionsByCategory("Science");
+
+        assertEquals(1, questions.size());
+        assertEquals("What part of the plant conducts photosynthesis?", questions.get(0).getQuestion());
+        assertEquals("Leaf", questions.get(0).getCorrectAnswer());
+    }
 }

@@ -34,10 +34,20 @@ public class GameScene {
     public static Scene build(Stage stage) {
 
         // get the questions for the selected category
-        ArrayList<Questions> questionList = QuestionBank.getQuestions(selectedCategory);
+        ArrayList<Questions> questionList =
+                new ArrayList<>(DatabaseManager.getInstance().getQuestionsByCategory(selectedCategory));
 
         // if we went through all the questions, show the score
         if (currentIndex >= questionList.size()) {
+            DatabaseManager db = DatabaseManager.getInstance();
+
+            db.saveQuizAttempt(
+                    1, // this is with password user and password 123
+                    selectedCategory,
+                    score,
+                    questionList.size()
+            );
+
             Label doneLabel = new Label("Game Over!");
             doneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
