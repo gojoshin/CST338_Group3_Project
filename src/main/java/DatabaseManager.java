@@ -26,6 +26,7 @@ public class DatabaseManager {
         try {
             connection = DriverManager.getConnection(getDatabaseUrl());
             createTables();
+            seedDefaultQuestions();
         } catch (SQLException e) {
             throw new RuntimeException("Database connection failed", e);
         }
@@ -178,6 +179,48 @@ public class DatabaseManager {
         }
     }
 
+    public ArrayList<Questions> getQuestions(String category) {
+        ArrayList<Questions> questions = new ArrayList<>();
+        String cleanedCategory = cleanCategory(category);
+
+        if (cleanedCategory.isEmpty()) {
+            return questions;
+        }
+
+        String sql = """
+                SELECT q.question_text,
+                       q.option_a,
+                       q.option_b,
+                       q.option_c,
+                       q.option_d,
+                       q.correct_answer
+                FROM questions q
+                JOIN categories c ON c.category_id = q.category_id
+                WHERE c.name = ?
+                ORDER BY q.question_id
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, cleanedCategory);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    questions.add(new Questions(
+                            rs.getString("question_text"),
+                            rs.getString("option_a"),
+                            rs.getString("option_b"),
+                            rs.getString("option_c"),
+                            rs.getString("option_d"),
+                            rs.getString("correct_answer")
+                    ));
+                }
+            }
+            return questions;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load questions", e);
+        }
+    }
+
     public static class UserAccount {
         private final String username;
         private final String password;
@@ -200,10 +243,133 @@ public class DatabaseManager {
         return username == null ? "" : username.trim();
     }
 
+    private static String cleanCategory(String category) {
+        return category == null ? "" : category.trim();
+    }
+
     private static boolean isUniqueUsernameError(SQLException e) {
         String message = e.getMessage();
         return message != null && message.toLowerCase().contains("unique");
     }
+
+    private void seedDefaultQuestions() throws SQLException {
+        for (DefaultQuestion question : DEFAULT_QUESTIONS) {
+            int categoryId = getOrCreateCategoryId(question.category());
+            insertQuestionIfMissing(categoryId, question);
+        }
+    }
+
+    private int getOrCreateCategoryId(String category) throws SQLException {
+        String insertSql = """
+                INSERT OR IGNORE INTO categories (name, description)
+                VALUES (?, ?)
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(insertSql)) {
+            ps.setString(1, category);
+            ps.setString(2, category + " trivia questions");
+            ps.executeUpdate();
+        }
+
+        String selectSql = """
+                SELECT category_id
+                FROM categories
+                WHERE name = ?
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(selectSql)) {
+            ps.setString(1, category);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("category_id");
+                }
+            }
+        }
+
+        throw new SQLException("Could not find category: " + category);
+    }
+
+    private void insertQuestionIfMissing(int categoryId, DefaultQuestion question) throws SQLException {
+        String sql = """
+                INSERT INTO questions (
+                    category_id,
+                    question_text,
+                    option_a,
+                    option_b,
+                    option_c,
+                    option_d,
+                    correct_answer
+                )
+                SELECT ?, ?, ?, ?, ?, ?, ?
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM questions
+                    WHERE category_id = ? AND question_text = ?
+                )
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ps.setString(2, question.question());
+            ps.setString(3, question.optionA());
+            ps.setString(4, question.optionB());
+            ps.setString(5, question.optionC());
+            ps.setString(6, question.optionD());
+            ps.setString(7, question.correctOption());
+            ps.setInt(8, categoryId);
+            ps.setString(9, question.question());
+            ps.executeUpdate();
+        }
+    }
+
+    private record DefaultQuestion(
+            String category,
+            String question,
+            String optionA,
+            String optionB,
+            String optionC,
+            String optionD,
+            String correctOption
+    ) {
+    }
+
+    private static final List<DefaultQuestion> DEFAULT_QUESTIONS = List.of(
+            new DefaultQuestion("Science", "What planet is closest to the Sun?",
+                    "Venus", "Mercury", "Earth", "Mars", "Mercury"),
+            new DefaultQuestion("Science", "What gas do plants absorb from the atmosphere?",
+                    "Oxygen", "Nitrogen", "Carbon Dioxide", "Helium", "Carbon Dioxide"),
+            new DefaultQuestion("Science", "What is the chemical symbol for water?",
+                    "H2O", "CO2", "O2", "NaCl", "H2O"),
+            new DefaultQuestion("Science", "How many bones are in the adult human body?",
+                    "106", "206", "306", "186", "206"),
+            new DefaultQuestion("Science", "What is the largest organ in the human body?",
+                    "Heart", "Liver", "Skin", "Brain", "Skin"),
+            new DefaultQuestion("Science", "What planet is the largest in the solar system?",
+                    "Jupiter", "Neptune", "Saturn", "Uranus", "Jupiter"),
+            new DefaultQuestion("Science", "What is the process by which light bends through water droplets forming a rainbow?",
+                    "Reflection", "Absorption", "Refraction", "Emission", "Refraction"),
+            new DefaultQuestion("History", "In what year did World War II end?",
+                    "1943", "1944", "1945", "1946", "1945"),
+            new DefaultQuestion("History", "Who was the first President of the United States?",
+                    "John Adams", "Thomas Jefferson", "George Washington", "Ben Franklin", "George Washington"),
+            new DefaultQuestion("History", "What ancient civilization built the pyramids?",
+                    "Romans", "Greeks", "Egyptians", "Persians", "Egyptians"),
+            new DefaultQuestion("History", "What year did the Titanic sink?",
+                    "1905", "1912", "1920", "1898", "1912"),
+            new DefaultQuestion("History", "Which country gifted the Statue of Liberty to the US?",
+                    "England", "Spain", "France", "Germany", "France"),
+            new DefaultQuestion("Movies", "What movie features a character named Forrest Gump?",
+                    "Cast Away", "Forrest Gump", "The Green Mile", "Big", "Forrest Gump"),
+            new DefaultQuestion("Movies", "Who directed Jurassic Park?",
+                    "James Cameron", "Ridley Scott", "Steven Spielberg", "George Lucas", "Steven Spielberg"),
+            new DefaultQuestion("Movies", "What is the highest-grossing film of all time?",
+                    "Avengers: Endgame", "Avatar", "Titanic", "Star Wars", "Avatar"),
+            new DefaultQuestion("Movies", "In The Lion King, what is Simba's father's name?",
+                    "Scar", "Mufasa", "Rafiki", "Zazu", "Mufasa"),
+            new DefaultQuestion("Movies", "What year was the first Toy Story released?",
+                    "1993", "1995", "1997", "1999", "1995")
+    );
 
     public void close() {
         try {

@@ -64,4 +64,30 @@ class DatabaseManagerTest {
         assertEquals("bt", users.get(1).getUsername());
         assertEquals("titan", users.get(1).getPassword());
     }
+
+    @Test
+    void getQuestionsReturnsSeededQuestionsForCategory() {
+        List<Questions> scienceQuestions = manager.getQuestions("Science");
+
+        assertEquals(7, scienceQuestions.size());
+
+        Questions firstQuestion = scienceQuestions.get(0);
+        assertEquals("What planet is closest to the Sun?", firstQuestion.getQuestion());
+        assertEquals("Venus", firstQuestion.getChoiceA());
+        assertEquals("Mercury", firstQuestion.getChoiceB());
+        assertEquals("Earth", firstQuestion.getChoiceC());
+        assertEquals("Mars", firstQuestion.getChoiceD());
+        assertEquals("Mercury", firstQuestion.getCorrectAnswer());
+        assertTrue(firstQuestion.isCorrect("Mercury"));
+    }
+
+    @Test
+    void defaultQuestionsDoNotDuplicateAfterDatabaseReopens() {
+        assertEquals(5, manager.getQuestions("History").size());
+
+        manager.close();
+        manager = DatabaseManager.getInstance();
+
+        assertEquals(5, manager.getQuestions("History").size());
+    }
 }

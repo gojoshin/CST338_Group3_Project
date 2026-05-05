@@ -34,7 +34,7 @@ public class GameScene {
     public static Scene build(Stage stage) {
 
         // get the questions for the selected category
-        ArrayList<Questions> questionList = QuestionBank.getQuestions(selectedCategory);
+        ArrayList<Questions> questionList = DatabaseManager.getInstance().getQuestions(selectedCategory);
 
         // if we went through all the questions, show the score
         if (currentIndex >= questionList.size()) {
