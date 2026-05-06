@@ -139,7 +139,9 @@ public class adminDashboard {
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: white ;" +
                 "-fx-background-radius: 8");
-//        TODO manage quiz scene where admin can edit quiz
+        manageQueBtn.setOnAction(e -> {
+            stage.setScene(SceneFactory.create(SceneType.MANAGE_QUIZ, stage));
+        });
 
         Button logoutBtn = new Button("Log Out");
         logoutBtn.setStyle("-fx-font-size: 14px;"+
