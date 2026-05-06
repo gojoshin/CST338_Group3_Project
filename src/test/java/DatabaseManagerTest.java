@@ -109,6 +109,34 @@ class DatabaseManagerTest {
     }
 
     @Test
+    void saveQuizAttemptRecordsCompletedGameForUser() {
+        assertTrue(manager.registerUser("scoreKeeper", "password123"));
+
+        assertTrue(manager.saveQuizAttempt("scoreKeeper", "Science", 5, 7));
+        assertTrue(manager.saveQuizAttempt("scoreKeeper", "History", 3, 5));
+
+        List<DatabaseManager.QuizAttempt> attempts = manager.getQuizAttemptsForUser("scoreKeeper");
+
+        assertEquals(2, attempts.size());
+        assertEquals("History", attempts.get(0).getCategoryName());
+        assertEquals("3 / 5", attempts.get(0).getScoreText());
+        assertEquals("60%", attempts.get(0).getPercentageText());
+        assertEquals("Science", attempts.get(1).getCategoryName());
+        assertEquals("5 / 7", attempts.get(1).getScoreText());
+        assertEquals("71%", attempts.get(1).getPercentageText());
+    }
+
+    @Test
+    void saveQuizAttemptRejectsMissingDataAndImpossibleScores() {
+        assertTrue(manager.registerUser("playerOne", "password123"));
+
+        assertFalse(manager.saveQuizAttempt("missingUser", "Science", 1, 7));
+        assertFalse(manager.saveQuizAttempt("playerOne", "Missing Category", 1, 7));
+        assertFalse(manager.saveQuizAttempt("playerOne", "Science", 8, 7));
+        assertTrue(manager.getQuizAttemptsForUser("playerOne").isEmpty());
+    }
+
+    @Test
     void addCategorySavesCategoryAndRejectsDuplicates() {
         assertTrue(manager.addCategory("Sports", "Sports trivia questions"));
         assertTrue(manager.getCategoryNames().contains("Sports"));

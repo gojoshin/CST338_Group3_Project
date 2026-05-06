@@ -22,6 +22,7 @@ public class SceneFactory {
             case ADD_QUESTIONS -> AddNewQuestions.build(stage);
             case CATEGORY_SELECTION -> CategorySelection.build(stage);
             case GAME -> GameScene.build(stage);
+            case LEADERBOARD -> LeaderboardScene.build(stage);
         };
 
         ThemeManager.applyTheme(scene);

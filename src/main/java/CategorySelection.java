@@ -38,23 +38,17 @@ public class CategorySelection {
         layout.setAlignment(Pos.CENTER);
 
         scienceBtn.setOnAction(e -> {
-            GameScene.selectedCategory = "Science";
-            GameScene.score = 0;
-            GameScene.currentIndex = 0;
+            GameScene.startNewGame("Science");
             stage.setScene(SceneFactory.create(SceneType.GAME, stage));
         });
 
         historyBtn.setOnAction(e -> {
-            GameScene.selectedCategory = "History";
-            GameScene.score = 0;
-            GameScene.currentIndex = 0;
+            GameScene.startNewGame("History");
             stage.setScene(SceneFactory.create(SceneType.GAME, stage));
         });
 
         moviesBtn.setOnAction(e -> {
-            GameScene.selectedCategory = "Movies";
-            GameScene.score = 0;
-            GameScene.currentIndex = 0;
+            GameScene.startNewGame("Movies");
             stage.setScene(SceneFactory.create(SceneType.GAME, stage));
         });
 

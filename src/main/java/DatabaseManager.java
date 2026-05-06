@@ -200,6 +200,91 @@ public class DatabaseManager {
         }
     }
 
+    public boolean saveQuizAttempt(String username, String categoryName, int score, int totalQuestions) {
+        int userId = getUserIdByUsername(username);
+        int categoryId = getCategoryIdByName(categoryName);
+
+        if (userId < 1 || categoryId < 1 || score < 0 || totalQuestions < 0 || score > totalQuestions) {
+            return false;
+        }
+
+        String sql = """
+                INSERT INTO quiz_attempts (user_id, category_id, score, total_questions)
+                VALUES (?, ?, ?, ?)
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, categoryId);
+            ps.setInt(3, score);
+            ps.setInt(4, totalQuestions);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not save quiz attempt", e);
+        }
+    }
+
+    public List<QuizAttempt> getQuizAttemptsForUser(String username) {
+        List<QuizAttempt> attempts = new ArrayList<>();
+        String cleanedUsername = cleanUsername(username);
+
+        if (cleanedUsername.isEmpty()) {
+            return attempts;
+        }
+
+        String sql = """
+                SELECT qa.attempt_id,
+                       u.username,
+                       c.name AS category_name,
+                       qa.score,
+                       qa.total_questions
+                FROM quiz_attempts qa
+                JOIN users u ON u.user_id = qa.user_id
+                JOIN categories c ON c.category_id = qa.category_id
+                WHERE u.username = ?
+                ORDER BY qa.attempt_id DESC
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, cleanedUsername);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    attempts.add(buildQuizAttempt(rs));
+                }
+            }
+            return attempts;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load quiz attempts", e);
+        }
+    }
+
+    public List<QuizAttempt> getAllQuizAttempts() {
+        List<QuizAttempt> attempts = new ArrayList<>();
+        String sql = """
+                SELECT qa.attempt_id,
+                       u.username,
+                       c.name AS category_name,
+                       qa.score,
+                       qa.total_questions
+                FROM quiz_attempts qa
+                JOIN users u ON u.user_id = qa.user_id
+                JOIN categories c ON c.category_id = qa.category_id
+                ORDER BY qa.score DESC, qa.total_questions DESC, qa.attempt_id DESC
+                """;
+
+        try (Statement s = connection.createStatement();
+             ResultSet rs = s.executeQuery(sql)) {
+            while (rs.next()) {
+                attempts.add(buildQuizAttempt(rs));
+            }
+            return attempts;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load leaderboard", e);
+        }
+    }
+
     public ArrayList<Questions> getQuestions(String category) {
         ArrayList<Questions> questions = new ArrayList<>();
         String cleanedCategory = cleanCategory(category);
@@ -402,6 +487,54 @@ public class DatabaseManager {
         }
     }
 
+    public static class QuizAttempt {
+        private final int attemptId;
+        private final String username;
+        private final String categoryName;
+        private final int score;
+        private final int totalQuestions;
+
+        public QuizAttempt(int attemptId, String username, String categoryName,
+                           int score, int totalQuestions) {
+            this.attemptId = attemptId;
+            this.username = username;
+            this.categoryName = categoryName;
+            this.score = score;
+            this.totalQuestions = totalQuestions;
+        }
+
+        public int getAttemptId() {
+            return attemptId;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getCategoryName() {
+            return categoryName;
+        }
+
+        public int getScore() {
+            return score;
+        }
+
+        public int getTotalQuestions() {
+            return totalQuestions;
+        }
+
+        public String getScoreText() {
+            return score + " / " + totalQuestions;
+        }
+
+        public String getPercentageText() {
+            if (totalQuestions == 0) {
+                return "0%";
+            }
+            return Math.round((score * 100.0) / totalQuestions) + "%";
+        }
+    }
+
     private static String cleanUsername(String username) {
         return username == null ? "" : username.trim();
     }
@@ -444,6 +577,43 @@ public class DatabaseManager {
         } catch (SQLException e) {
             throw new RuntimeException("Could not find category", e);
         }
+    }
+
+    private int getUserIdByUsername(String username) {
+        String cleanedUsername = cleanUsername(username);
+
+        if (cleanedUsername.isEmpty()) {
+            return -1;
+        }
+
+        String sql = """
+                SELECT user_id
+                FROM users
+                WHERE username = ?
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, cleanedUsername);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("user_id");
+                }
+            }
+            return -1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not find user", e);
+        }
+    }
+
+    private QuizAttempt buildQuizAttempt(ResultSet rs) throws SQLException {
+        return new QuizAttempt(
+                rs.getInt("attempt_id"),
+                rs.getString("username"),
+                rs.getString("category_name"),
+                rs.getInt("score"),
+                rs.getInt("total_questions")
+        );
     }
 
     private static boolean matchesAnswerOption(String correctAnswer, String optionA, String optionB,

@@ -57,10 +57,13 @@ public class LoginController{
             }
 
             if (isAdminLogin(username, password)) {
+                SessionManager.loginAdmin();
                 stage.setScene(SceneFactory.create(SceneType.ADMIN_DASHBOARD, stage));
             } else if (DatabaseManager.getInstance().validateLogin(username, password)) {
+                SessionManager.loginUser(username);
                 stage.setScene(SceneFactory.create(SceneType.USER_DASHBOARD, stage));
             } else {
+                SessionManager.logout();
                 messageLabel.setText("Invalid login.");
             }
 
