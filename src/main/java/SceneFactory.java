@@ -26,10 +26,10 @@ public class SceneFactory {
             case ADMIN_DASHBOARD -> adminDashboard.build(stage);
             case CATEGORY_SELECTION -> CategorySelection.build(stage);
             case GAME -> GameScene.build(stage);
+            case LEADERBOARD -> LeaderboardScene.build(stage);
         };
 
         ThemeManager.applyTheme(scene);
         return scene;
     }
-
 }
