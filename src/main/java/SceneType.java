@@ -17,5 +17,6 @@ public enum SceneType {
     MANAGE_QUESTIONS,
     ADD_QUESTIONS,
     CATEGORY_SELECTION,
-    GAME
+    GAME,
+    LEADERBOARD
 }
