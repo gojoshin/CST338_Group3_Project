@@ -122,7 +122,9 @@ public class adminDashboard {
                 "-fx-text-fill: white ;" +
                 "-fx-background-radius: 8");
 
-//        todo will take to the leaderboard scene
+        leaderboardBtn.setOnAction(e -> {
+            stage.setScene(SceneFactory.create(SceneType.LEADERBOARD, stage));
+        });
 
         Button historyBtn = new Button("Quiz History");
         historyBtn.setStyle("-fx-font-size: 14px;"+
@@ -150,6 +152,7 @@ public class adminDashboard {
                 "-fx-text-fill: white ;" +
                 "-fx-background-radius: 8");
         logoutBtn.setOnAction(e -> {
+            SessionManager.logout();
             stage.setScene(SceneFactory.create(SceneType.LOGIN, stage));
         });
 
