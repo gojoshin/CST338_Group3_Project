@@ -1,13 +1,5 @@
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.geometry.Pos ;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * [Scene Factory Class]
@@ -24,6 +16,10 @@ public class SceneFactory {
             case REGISTER -> RegisterController.build(stage);
             case USER_DASHBOARD -> userDashboard.build(stage);
             case ADMIN_DASHBOARD -> adminDashboard.build(stage);
+            case MANAGE_QUIZ -> ManageQuizDashboard.build(stage);
+            case MANAGE_CATEGORY -> ManageCategory.build(stage);
+            case MANAGE_QUESTIONS -> ManageQuestions.build(stage);
+            case ADD_QUESTIONS -> AddNewQuestions.build(stage);
             case CATEGORY_SELECTION -> CategorySelection.build(stage);
             case GAME -> GameScene.build(stage);
         };

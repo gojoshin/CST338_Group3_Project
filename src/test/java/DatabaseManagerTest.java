@@ -100,6 +100,66 @@ class DatabaseManagerTest {
     }
 
     @Test
+    void getCategoryNamesReturnsSeededCategories() {
+        List<String> categories = manager.getCategoryNames();
+
+        assertTrue(categories.contains("Science"));
+        assertTrue(categories.contains("History"));
+        assertTrue(categories.contains("Movies"));
+    }
+
+    @Test
+    void addCategorySavesCategoryAndRejectsDuplicates() {
+        assertTrue(manager.addCategory("Sports", "Sports trivia questions"));
+        assertTrue(manager.getCategoryNames().contains("Sports"));
+        assertFalse(manager.addCategory("Sports", "Duplicate sports category"));
+    }
+
+    @Test
+    void addQuestionSavesQuestionAndDeleteQuestionRemovesIt() {
+        assertTrue(manager.addCategory("Sports", "Sports trivia questions"));
+        assertTrue(manager.addQuestion(
+                "Sports",
+                "How many points is a touchdown worth?",
+                "3",
+                "6",
+                "7",
+                "2",
+                "6"
+        ));
+
+        List<Questions> sportsQuestions = manager.getQuestions("Sports");
+        assertEquals(1, sportsQuestions.size());
+        assertEquals("How many points is a touchdown worth?", sportsQuestions.get(0).getQuestion());
+
+        int questionId = findQuestionId("Sports", "How many points is a touchdown worth?");
+        assertTrue(manager.deleteQuestionById(questionId));
+        assertTrue(manager.getQuestions("Sports").isEmpty());
+    }
+
+    @Test
+    void addQuestionRejectsBlankFieldsAndCorrectAnswerOutsideOptions() {
+        assertFalse(manager.addQuestion(
+                "Science",
+                "",
+                "A",
+                "B",
+                "C",
+                "D",
+                "A"
+        ));
+        assertFalse(manager.addQuestion(
+                "Science",
+                "Which option is correct?",
+                "A",
+                "B",
+                "C",
+                "D",
+                "E"
+        ));
+    }
+
+    @Test
     void defaultQuestionsDoNotDuplicateAfterDatabaseReopens() {
         assertEquals(5, manager.getQuestions("History").size());
 
@@ -107,5 +167,14 @@ class DatabaseManagerTest {
         manager = DatabaseManager.getInstance();
 
         assertEquals(5, manager.getQuestions("History").size());
+    }
+
+    private int findQuestionId(String category, String questionText) {
+        return manager.getQuestionsWithCategory().stream()
+                .filter(row -> row.contains(" | " + category + " | " + questionText))
+                .map(row -> row.split("\\|")[0].trim())
+                .mapToInt(Integer::parseInt)
+                .findFirst()
+                .orElse(-1);
     }
 }

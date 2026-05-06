@@ -242,6 +242,148 @@ public class DatabaseManager {
         }
     }
 
+    public boolean addCategory(String name, String description) {
+        String cleanedName = cleanCategory(name);
+
+        if (cleanedName.isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+                INSERT INTO categories (name, description)
+                VALUES (?, ?)
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, cleanedName);
+            ps.setString(2, description == null ? "" : description.trim());
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            if (isUniqueUsernameError(e)) {
+                return false;
+            }
+            throw new RuntimeException("Could not add category", e);
+        }
+    }
+
+    public List<String> getCategoryNames() {
+        List<String> categories = new ArrayList<>();
+        String sql = """
+                SELECT name
+                FROM categories
+                ORDER BY name
+                """;
+
+        try (Statement s = connection.createStatement();
+             ResultSet rs = s.executeQuery(sql)) {
+            while (rs.next()) {
+                categories.add(rs.getString("name"));
+            }
+            return categories;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load categories", e);
+        }
+    }
+
+    public boolean addQuestion(String categoryName, String questionText,
+                               String optionA, String optionB,
+                               String optionC, String optionD,
+                               String correctAnswer) {
+        int categoryId = getCategoryIdByName(categoryName);
+        String cleanedQuestion = cleanRequiredText(questionText);
+        String cleanedOptionA = cleanRequiredText(optionA);
+        String cleanedOptionB = cleanRequiredText(optionB);
+        String cleanedOptionC = cleanRequiredText(optionC);
+        String cleanedOptionD = cleanRequiredText(optionD);
+        String cleanedCorrectAnswer = cleanRequiredText(correctAnswer);
+
+        if (categoryId < 1
+                || cleanedQuestion.isEmpty()
+                || cleanedOptionA.isEmpty()
+                || cleanedOptionB.isEmpty()
+                || cleanedOptionC.isEmpty()
+                || cleanedOptionD.isEmpty()
+                || cleanedCorrectAnswer.isEmpty()
+                || !matchesAnswerOption(cleanedCorrectAnswer, cleanedOptionA, cleanedOptionB,
+                        cleanedOptionC, cleanedOptionD)) {
+            return false;
+        }
+
+        String sql = """
+                INSERT INTO questions (
+                    category_id,
+                    question_text,
+                    option_a,
+                    option_b,
+                    option_c,
+                    option_d,
+                    correct_answer
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ps.setString(2, cleanedQuestion);
+            ps.setString(3, cleanedOptionA);
+            ps.setString(4, cleanedOptionB);
+            ps.setString(5, cleanedOptionC);
+            ps.setString(6, cleanedOptionD);
+            ps.setString(7, cleanedCorrectAnswer);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not add question", e);
+        }
+    }
+
+    public List<String> getQuestionsWithCategory() {
+        List<String> questions = new ArrayList<>();
+        String sql = """
+                SELECT q.question_id, c.name, q.question_text
+                FROM questions q
+                JOIN categories c ON c.category_id = q.category_id
+                ORDER BY q.question_id DESC
+                """;
+
+        try (Statement s = connection.createStatement();
+             ResultSet rs = s.executeQuery(sql)) {
+            while (rs.next()) {
+                questions.add(
+                        rs.getInt("question_id") + " | "
+                                + rs.getString("name") + " | "
+                                + rs.getString("question_text")
+                );
+            }
+            return questions;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load question summaries", e);
+        }
+    }
+
+    public boolean deleteQuestionById(int questionId) {
+        if (questionId < 1) {
+            return false;
+        }
+
+        String sql = """
+                DELETE FROM questions
+                WHERE question_id = ?
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, questionId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not delete question", e);
+        }
+    }
+
+    public ArrayList<Questions> getQuestionsByCategory(String categoryName) {
+        return getQuestions(categoryName);
+    }
+
     public static class UserAccount {
         private final String username;
         private final String password;
@@ -268,9 +410,48 @@ public class DatabaseManager {
         return category == null ? "" : category.trim();
     }
 
+    private static String cleanRequiredText(String text) {
+        return text == null ? "" : text.trim();
+    }
+
     private static boolean isUniqueUsernameError(SQLException e) {
         String message = e.getMessage();
         return message != null && message.toLowerCase().contains("unique");
+    }
+
+    private int getCategoryIdByName(String categoryName) {
+        String cleanedCategory = cleanCategory(categoryName);
+
+        if (cleanedCategory.isEmpty()) {
+            return -1;
+        }
+
+        String sql = """
+                SELECT category_id
+                FROM categories
+                WHERE name = ?
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, cleanedCategory);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("category_id");
+                }
+            }
+            return -1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not find category", e);
+        }
+    }
+
+    private static boolean matchesAnswerOption(String correctAnswer, String optionA, String optionB,
+                                               String optionC, String optionD) {
+        return correctAnswer.equals(optionA)
+                || correctAnswer.equals(optionB)
+                || correctAnswer.equals(optionC)
+                || correctAnswer.equals(optionD);
     }
 
     private void seedDefaultQuestions() throws SQLException {
