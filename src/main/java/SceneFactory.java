@@ -28,5 +28,4 @@ public class SceneFactory {
         ThemeManager.applyTheme(scene);
         return scene;
     }
-
 }
