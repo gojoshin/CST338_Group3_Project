@@ -1,13 +1,5 @@
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.geometry.Pos ;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * [Scene Factory Class]
@@ -26,7 +18,7 @@ public class SceneFactory {
             case ADMIN_DASHBOARD -> adminDashboard.build(stage);
             case CATEGORY_SELECTION -> CategorySelection.build(stage);
             case GAME -> GameScene.build(stage);
-            case LEADERBOARD -> leaderboard.build(stage);
+            case LEADERBOARD -> LeaderboardScene.build(stage);
         };
 
         ThemeManager.applyTheme(scene);

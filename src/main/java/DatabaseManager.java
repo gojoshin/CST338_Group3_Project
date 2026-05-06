@@ -205,6 +205,44 @@ public class DatabaseManager {
         return message != null && message.toLowerCase().contains("unique");
     }
 
+    public List<LeaderboardEntry> getTopScores() {
+        List<LeaderboardEntry> scores = new ArrayList<>();
+        String sql = """
+        SELECT users.username, SUM(quiz_attempts.score) AS total_score
+        FROM quiz_attempts
+        JOIN users ON quiz_attempts.user_id = users.user_id
+        GROUP BY users.username
+        ORDER BY total_score DESC
+        LIMIT 10
+        """;
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet results = statement.executeQuery()) {
+            while (results.next()) {
+                scores.add(new LeaderboardEntry(
+                        results.getString("username"),
+                        results.getInt("total_score")
+                ));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load leaderboard", e);
+        }
+        return scores;
+    }
+
+    public int getUserId(String username) {
+        String sql = "SELECT user_id FROM users WHERE username = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            ResultSet results = statement.executeQuery();
+            if (results.next()) {
+                return results.getInt("user_id");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not find user id", e);
+        }
+        return -1; // means user not found
+    }
+
     public void close() {
         try {
             if (connection != null && !connection.isClosed()) connection.close();
@@ -212,6 +250,51 @@ public class DatabaseManager {
         } finally {
             instance = null;
         }
+    }
+
+    public void saveScore(int userId, int categoryId, int score, int totalQuestions) {
+        String sql = """
+        INSERT INTO quiz_attempts (user_id, category_id, score, total_questions)
+        VALUES (?, ?, ?, ?)
+    """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            statement.setInt(2, categoryId);
+            statement.setInt(3, score);
+            statement.setInt(4, totalQuestions);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not save score", e);
+        }
+    }
+
+
+    public static class LeaderboardEntry {
+        private final String username;
+        private final int score;
+
+        public LeaderboardEntry(String username, int score) {
+            this.username = username;
+            this.score = score;
+        }
+
+        public String getUsername() { return username; }
+        public int getScore() { return score; }
+    }
+
+    public int getCategoryId(String categoryName) {
+        String sql = "SELECT category_id FROM categories WHERE name = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, categoryName);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("category_id");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not get category ID", e);
+        }
+        return -1; // category not found
     }
 
 }

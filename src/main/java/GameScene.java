@@ -38,6 +38,14 @@ public class GameScene {
 
         // if we went through all the questions, show the score
         if (currentIndex >= questionList.size()) {
+            int categoryId = DatabaseManager.getInstance().getCategoryId(selectedCategory);
+
+            DatabaseManager.getInstance().saveScore(
+                    SessionManager.getCurrentUserId(),
+                    categoryId,
+                    score,
+                    questionList.size()
+            );// saves score to database
             Label doneLabel = new Label("Game Over!");
             doneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
