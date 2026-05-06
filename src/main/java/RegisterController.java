@@ -24,7 +24,6 @@ public class RegisterController {
         userLabel.setStyle("-fx-font-size: 16px;");
 
         TextField usernameField = new TextField();
-        usernameField.setPromptText("eg. otter 123");
         usernameField.setMaxWidth(200);
 
 //      password
@@ -92,11 +91,11 @@ public class RegisterController {
 
         VBox root = new VBox(15, title, userLabel, usernameField,
                 passwordLabel, passwordField, confirmLabel, confirmField, messageLabel,
-                registerBtn, backBtn
+                registerBtn, backBtn, ThemeManager.createDarkModeToggle(stage, SceneType.REGISTER)
         );
 
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
-        return new Scene(root, 400, 400);
+        return new Scene(root, 400, 470);
     }
 }

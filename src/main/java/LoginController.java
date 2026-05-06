@@ -57,10 +57,13 @@ public class LoginController{
             }
 
             if (isAdminLogin(username, password)) {
+                SessionManager.loginAdmin();
                 stage.setScene(SceneFactory.create(SceneType.ADMIN_DASHBOARD, stage));
             } else if (DatabaseManager.getInstance().validateLogin(username, password)) {
+                SessionManager.loginUser(username);
                 stage.setScene(SceneFactory.create(SceneType.USER_DASHBOARD, stage));
             } else {
+                SessionManager.logout();
                 messageLabel.setText("Invalid login.");
             }
 
@@ -78,13 +81,14 @@ public class LoginController{
         });
 
         VBox root = new VBox(15, title,userLabel, usernameField, passwordLabel,
-                passwordField, messageLabel, loginBtn, registerBtn
+                passwordField, messageLabel, loginBtn, registerBtn,
+                ThemeManager.createDarkModeToggle(stage, SceneType.LOGIN)
         );
 
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
 
-        return new Scene(root, 400, 400);
+        return new Scene(root, 400, 430);
     }
 
     private static boolean isAdminLogin(String username, String password) {

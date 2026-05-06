@@ -31,13 +31,37 @@ public class GameScene {
     // keeps track of which question we are on
     static int currentIndex = 0;
 
+    // makes sure the completed score is only saved once
+    static boolean scoreSaved = false;
+
+    public static void startNewGame(String category) {
+        selectedCategory = category;
+        resetGame();
+    }
+
+    private static void resetGame() {
+        score = 0;
+        currentIndex = 0;
+        scoreSaved = false;
+    }
+
     public static Scene build(Stage stage) {
 
         // get the questions for the selected category
-        ArrayList<Questions> questionList = QuestionBank.getQuestions(selectedCategory);
+        ArrayList<Questions> questionList = DatabaseManager.getInstance().getQuestions(selectedCategory);
 
         // if we went through all the questions, show the score
         if (currentIndex >= questionList.size()) {
+            if (SessionManager.isUserLoggedIn() && scoreSaved == false) {
+                DatabaseManager.getInstance().saveQuizAttempt(
+                        SessionManager.getCurrentUsername(),
+                        selectedCategory,
+                        score,
+                        questionList.size()
+                );
+                scoreSaved = true;
+            }
+
             Label doneLabel = new Label("Game Over!");
             doneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
@@ -47,12 +71,17 @@ public class GameScene {
             Button backBtn = new Button("Back to Categories");
             backBtn.setOnAction(e -> {
                 // reset for next game
-                score = 0;
-                currentIndex = 0;
+                resetGame();
                 stage.setScene(SceneFactory.create(SceneType.CATEGORY_SELECTION, stage));
             });
 
-            VBox endRoot = new VBox(15, doneLabel, scoreLabel, backBtn);
+            Button leaderboardBtn = new Button("View Leaderboard");
+            leaderboardBtn.setOnAction(e -> {
+                resetGame();
+                stage.setScene(SceneFactory.create(SceneType.LEADERBOARD, stage));
+            });
+
+            VBox endRoot = new VBox(15, doneLabel, scoreLabel, leaderboardBtn, backBtn);
             endRoot.setPadding(new Insets(30));
             endRoot.setAlignment(Pos.CENTER);
 
@@ -192,8 +221,7 @@ public class GameScene {
         // if they click back, stop the timer and go to categories
         backBtn.setOnAction(e -> {
             countdownHolder[0].stop();
-            score = 0;
-            currentIndex = 0;
+            resetGame();
             stage.setScene(SceneFactory.create(SceneType.CATEGORY_SELECTION, stage));
         });
 
